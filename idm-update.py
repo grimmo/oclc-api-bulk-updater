@@ -7,6 +7,7 @@ import sys
 import pyjq
 import requests
 from dotenv import dotenv_values
+from time import sleep
 
 if exists('.env'):
     config = dotenv_values('.env')
@@ -108,13 +109,14 @@ def updatePatron(userId, moddedRecord, etag, authtoken):
 
 # Read mod.jq for modifier
 
-# with open('mod.jq', 'r') as file:
-#     MODJQ = file.read()
-MODJQ = '."urn:mace:oclc.org:eidm:schema:persona:persona:20180305".oclcExpirationDate = "2035-12-30T00:00:00Z"'
+with open('mod.jq', 'r') as file:
+    MODJQ = file.read()
+#MODJQ = '."urn:mace:oclc.org:eidm:schema:persona:persona:20180305".oclcExpirationDate = "2035-12-30T00:00:00Z"'
 # MODJQ = '.'
 
 
 BASEURL = "https://%s.share.worldcat.org/idaas/scim/v2" %INSTID
+
 
 SEARCHURL = BASEURL + '/Users/.search'
 
@@ -147,6 +149,7 @@ for line in sys.stdin:
             patron = readPatron(ppid, TOKEN)
             # for debugging
             patronJson = json.dumps(patron.json())
+            print(patronJson)
         except ValueError:
             # token has expired, get a fresh token and redo read
             print('getting new token')
@@ -158,6 +161,7 @@ for line in sys.stdin:
 
         # Create modded record with MODJQ
         modded = json.dumps(pyjq.one(MODJQ, patron.json()))
+        print(modded)
 
         # Update patron record
         try:
@@ -169,3 +173,4 @@ for line in sys.stdin:
             print('update getting new token')
             TOKEN = getToken()
             update = updatePatron(ppid, modded, ETag, TOKEN)
+        sleep(5)
