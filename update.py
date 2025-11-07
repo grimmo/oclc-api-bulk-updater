@@ -91,6 +91,7 @@ def readPatron(userId, authtoken):
         if read.status_code == 401:
             raise ValueError('Token expired')
         else:
+            raise err
             SystemExit(err)
         
     return read
@@ -114,6 +115,7 @@ def updatePatron(userId, moddedRecord, etag, authtoken):
         if update.status_code == 401:
             raise ValueError('Token expired')
         else:
+            raise err
             SystemExit(err)
 
     return update
@@ -161,7 +163,8 @@ if __name__ == "__main__":
                 patron = readPatron(ppid, TOKEN)
                 # for debugging
                 patronJson = json.dumps(patron.json())
-                #print(patronJson)
+                with open("grillo.json","w") as grillo:
+                    grillo.write(json.dumps(patron.json()))
             except ValueError:
                 # token has expired, get a fresh token and redo read
                 print('getting new token')
