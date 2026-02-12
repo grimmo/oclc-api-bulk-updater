@@ -13,9 +13,9 @@ from dotenv import dotenv_values
 from time import sleep
 import pickle
 
-
-if exists('.env'):
-    config = dotenv_values('.env')
+ENVFILE='.env.idpupdate'
+if exists(ENVFILE):
+    config = dotenv_values(ENVFILE)
 else:
     sys.exit('.env file not found, exiting')
 
@@ -226,7 +226,7 @@ if __name__ == "__main__":
     #print(f'Modded Patron data:\n{modded}')
     #
     # Elimina record Shibboleth
-    deleteIdP(correlation_id_da_eliminare, TOKEN)
+    deleteIdP('229e0c35-e53a-4f19-bf05-05c94c7e9963', TOKEN)
     
     # Update patron record
     #try:
