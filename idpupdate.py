@@ -150,6 +150,20 @@ def updatePatron(userId, moddedRecord, etag, authtoken):
 
     return update
 
+def addIdP(PPID,correlationInfo,authtoken):
+    addUrl = BASEURL + "/correlation-identifiers"
+    Headers = {
+        'Authorization' : 'Bearer %s' % authtoken
+        , 'Accept' : 'application/json' 
+    }
+    try:
+        # va usato json= al posto di data= per le query in formato JSON!
+        post = requests.post(addUrl, headers=Headers,json=correlationInfo)
+        print(post.status_code)
+        print(post.content)
+        post.raise_for_status()
+    except requests.exceptions.HTTPError as err:
+        raise err
 
 def deleteIdP(correlationId, authtoken):
     "Elimina correlationId da record utente"
@@ -178,11 +192,15 @@ if __name__ == "__main__":
     
     # Read mod.jq for modifier
     
-    with open('elimina_shib.jq', 'r') as file:
-        MODJQ = file.read()
+    with open('add_unimi.json','r') as correlInfoFile:
+        correlInfo = json.load(correlInfoFile)
+
+    print(f"CorrelationInfo da aggiungere:{correlInfo}")
+    #with open('elimina_shib.jq', 'r') as file:
+    #    MODJQ = file.read()
     #MODJQ = '."urn:mace:oclc.org:eidm:schema:persona:persona:20180305".oclcExpirationDate = "2035-12-30T00:00:00Z"'
     # MODJQ = '.'
-    print("Letto elimina_shib.jq")
+    #print("Letto elimina_shib.jq")
     
     
     
@@ -191,8 +209,17 @@ if __name__ == "__main__":
     print("Richiesta token...")
     
     TOKEN = getToken()
+    ppid = '1cd3df1a-c87d-43d8-87b2-817d428ab6e3'
     
+    patron = readPatron(ppid, TOKEN)
+    # for debugging
+    patronJson = json.dumps(patron.json())
+    with open("user.json","w") as user:
+        user.write(json.dumps(patron.json()))
     
+    print(addIdP(ppid,correlInfo,TOKEN))
+    sys.exit()
+
     # take identifiers from stdin
     barcode = sys.argv[1]
     try:
@@ -226,7 +253,7 @@ if __name__ == "__main__":
     #print(f'Modded Patron data:\n{modded}')
     #
     # Elimina record Shibboleth
-    deleteIdP('229e0c35-e53a-4f19-bf05-05c94c7e9963', TOKEN)
+    #deleteIdP('229e0c35-e53a-4f19-bf05-05c94c7e9963', TOKEN)
     
     # Update patron record
     #try:
